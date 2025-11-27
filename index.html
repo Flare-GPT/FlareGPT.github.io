@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat z AI</title>
+    <title>FlareGPT</title>
     <style>
         * {
             margin: 0;
@@ -12,448 +12,236 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
             background: #1a1a1a;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            color: #ffffff;
+            height: 100vh;
+            overflow: hidden;
         }
 
         .container {
-            width: 100%;
-            max-width: 900px;
-            background: #2d2d2d;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-            overflow: hidden;
             display: flex;
             flex-direction: column;
-            height: 90vh;
-            max-height: 800px;
-            border: 1px solid #3a3a3a;
+            height: 100vh;
         }
 
         .header {
-            background: #232323;
-            color: #e0e0e0;
-            padding: 20px 24px;
-            border-bottom: 1px solid #3a3a3a;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header-left h1 {
-            font-size: 20px;
-            font-weight: 500;
-            margin-bottom: 4px;
-            color: #ffffff;
-        }
-
-        .header-left p {
-            font-size: 14px;
-            color: #9ca3af;
-        }
-
-        .settings-btn {
-            background: #3a3a3a;
-            border: 1px solid #4a4a4a;
-            color: #e0e0e0;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        .settings-btn:hover {
-            background: #4a4a4a;
-        }
-
-        .settings-panel {
-            display: none;
-            background: #252525;
-            border-bottom: 1px solid #3a3a3a;
-            padding: 20px 24px;
-        }
-
-        .settings-panel.show {
-            display: block;
-        }
-
-        .setting-row {
-            margin-bottom: 16px;
-        }
-
-        .setting-row label {
-            display: block;
-            color: #9ca3af;
-            font-size: 13px;
-            margin-bottom: 6px;
-        }
-
-        .setting-row input, .setting-row select {
-            width: 100%;
             background: #2d2d2d;
-            border: 1px solid #3a3a3a;
-            color: #ffffff;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 14px;
+            padding: 15px 30px;
+            border-bottom: 1px solid #3a3a3a;
         }
 
-        .setting-row input:focus, .setting-row select:focus {
-            outline: none;
-            border-color: #5a5a5a;
-        }
-
-        .test-btn {
-            background: #3a3a3a;
-            border: 1px solid #4a4a4a;
-            color: #e0e0e0;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
-            margin-top: 8px;
-        }
-
-        .test-btn:hover {
-            background: #4a4a4a;
-        }
-
-        .test-result {
-            margin-top: 12px;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .test-result.success {
-            background: #1a3a1a;
-            color: #4ade80;
-            border: 1px solid #2a4a2a;
-        }
-
-        .test-result.error {
-            background: #3a1a1a;
-            color: #f87171;
-            border: 1px solid #4a2a2a;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid #3a3a3a;
-        }
-
-        .stat-box {
-            background: #2d2d2d;
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #3a3a3a;
-        }
-
-        .stat-label {
-            color: #9ca3af;
-            font-size: 12px;
-            margin-bottom: 4px;
-        }
-
-        .stat-value {
-            color: #ffffff;
+        .model-name {
             font-size: 18px;
             font-weight: 500;
         }
 
-        .chat-messages {
+        .chat-area {
             flex: 1;
             overflow-y: auto;
-            padding: 24px;
-            background: #2d2d2d;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        .chat-messages::-webkit-scrollbar {
-            width: 8px;
+        .welcome-message {
+            text-align: center;
+            margin-top: 150px;
         }
 
-        .chat-messages::-webkit-scrollbar-track {
-            background: #2d2d2d;
-        }
-
-        .chat-messages::-webkit-scrollbar-thumb {
-            background: #4a4a4a;
-            border-radius: 4px;
-        }
-
-        .chat-messages::-webkit-scrollbar-thumb:hover {
-            background: #5a5a5a;
+        .welcome-message h1 {
+            font-size: 42px;
+            margin-bottom: 20px;
+            font-weight: 400;
         }
 
         .message {
-            margin-bottom: 24px;
-            display: flex;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { 
-                opacity: 0; 
-                transform: translateY(10px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            }
+            max-width: 800px;
+            width: 100%;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
         }
 
         .message.user {
-            justify-content: flex-end;
+            background: #2d2d2d;
+            margin-left: auto;
+        }
+
+        .message.assistant {
+            background: #1e1e1e;
         }
 
         .message-content {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 12px;
-            word-wrap: break-word;
-            white-space: pre-wrap;
             line-height: 1.6;
-            font-size: 15px;
-        }
-
-        .message.user .message-content {
-            background: #3a3a3a;
-            color: #ffffff;
-            border: 1px solid #4a4a4a;
-        }
-
-        .message.assistant .message-content {
-            background: #383838;
-            color: #e8e8e8;
-            border: 1px solid #454545;
-        }
-
-        .message.assistant .message-content.error {
-            background: #4a2020;
-            border-color: #6a3030;
         }
 
         .input-area {
-            padding: 20px 24px;
-            background: #232323;
+            padding: 20px;
+            background: #1a1a1a;
             border-top: 1px solid #3a3a3a;
+        }
+
+        .input-container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
             display: flex;
-            gap: 12px;
-        }
-
-        .input-area input {
-            flex: 1;
-            padding: 12px 16px;
-            border: 1px solid #3a3a3a;
-            border-radius: 8px;
-            font-size: 15px;
-            outline: none;
+            align-items: center;
             background: #2d2d2d;
-            color: #ffffff;
-            transition: all 0.2s;
+            border-radius: 25px;
+            padding: 5px 15px;
         }
 
-        .input-area input::placeholder {
-            color: #6b7280;
-        }
-
-        .input-area input:focus {
-            border-color: #5a5a5a;
-            background: #353535;
-        }
-
-        .input-area button {
-            padding: 12px 24px;
-            background: #4a4a4a;
-            color: #ffffff;
+        .input-field {
+            flex: 1;
+            background: transparent;
             border: none;
-            border-radius: 8px;
+            color: #ffffff;
+            padding: 12px 15px;
+            font-size: 16px;
+            outline: none;
+            resize: none;
+            max-height: 200px;
+            font-family: inherit;
+        }
+
+        .input-field::placeholder {
+            color: #888;
+        }
+
+        .send-button {
+            background: transparent;
+            border: none;
+            color: #888;
             cursor: pointer;
-            font-weight: 500;
-            font-size: 15px;
+            padding: 8px 12px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: all 0.2s;
         }
 
-        .input-area button:hover:not(:disabled) {
+        .send-button:hover {
+            background: #3a3a3a;
+        }
+
+        .send-button.active {
+            color: #ffffff;
+        }
+
+        .settings-panel {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            margin: 20px auto;
+            display: none;
+        }
+
+        .settings-panel input {
+            width: 100%;
+            padding: 10px;
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            color: #ffffff;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .settings-panel button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: #4a4a4a;
+            border: none;
+            color: #ffffff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .settings-panel button:hover {
             background: #5a5a5a;
         }
 
-        .input-area button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        .typing {
-            padding: 8px 24px;
-            color: #9ca3af;
-            font-size: 14px;
-            font-style: italic;
-            display: none;
-            background: #2d2d2d;
-        }
-
-        .typing.show {
-            display: block;
-        }
-
-        .welcome {
-            text-align: center;
-            padding: 60px 20px;
-            color: #9ca3af;
-        }
-
-        .welcome h2 {
-            margin-bottom: 12px;
-            color: #e0e0e0;
-            font-weight: 500;
-            font-size: 24px;
-        }
-
-        .welcome p {
-            font-size: 15px;
-            line-height: 1.6;
-        }
-
-        .connection-status {
+        .loading {
             display: inline-block;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            margin-top: 4px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #888;
+            animation: pulse 1.5s ease-in-out infinite;
         }
 
-        .connection-status.connected {
-            background: #1a3a1a;
-            color: #4ade80;
-            border: 1px solid #2a4a2a;
-        }
-
-        .connection-status.disconnected {
-            background: #3a1a1a;
-            color: #f87171;
-            border: 1px solid #4a2a2a;
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="header-left">
-                <h1>Chat z lokalnym AI</h1>
-                <p id="modelDisplay">Qwen 2.5 Coder 14B via Ollama</p>
-                <span class="connection-status disconnected" id="connectionStatus">🔴 Sprawdzam połączenie...</span>
-            </div>
-            <button class="settings-btn" onclick="toggleSettings()">⚙️ Ustawienia</button>
+            <div class="model-name">FlareGPT</div>
         </div>
 
-        <div class="settings-panel" id="settingsPanel">
-            <div class="setting-row">
-                <label>Model:</label>
-                <input type="text" id="modelName" value="qwen2.5-coder:14b">
+        <div class="chat-area" id="chatArea">
+            <div class="welcome-message">
+                <h1>Co dzisiaj w programie?</h1>
             </div>
-            <div class="setting-row">
-                <label>Max tokens (długość odpowiedzi):</label>
-                <input type="number" id="maxTokens" value="2048" min="100" max="8000">
-            </div>
-            <div class="setting-row">
-                <label>Temperature (kreatywność: 0=precyzyjny, 1=kreatywny):</label>
-                <input type="number" id="temperature" step="0.1" value="0.7" min="0" max="2">
-            </div>
-            <div class="setting-row">
-                <label>URL Ollama:</label>
-                <input type="text" id="ollamaUrl" value="http://localhost:11434">
-            </div>
-            
-            <button class="test-btn" onclick="testConnection()">Testuj połączenie</button>
-            <div id="testResult"></div>
 
-            <div class="stats">
-                <div class="stat-box">
-                    <div class="stat-label">Wiadomości</div>
-                    <div class="stat-value" id="messageCount">0</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-label">Ostatni czas</div>
-                    <div class="stat-value" id="lastResponseTime">-</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-label">Historia</div>
-                    <div class="stat-value" id="historySize">0</div>
-                </div>
+            <div class="settings-panel" id="settingsPanel">
+                <h3>Ustawienia API</h3>
+                <label>
+                    Adres API Ollama:
+                    <input type="text" id="apiUrl" placeholder="https://tall-crabs-sleep.loca.lt" value="https://tall-crabs-sleep.loca.lt">
+                </label>
+                <label>
+                    Nazwa modelu:
+                    <input type="text" id="modelName" placeholder="qwen2.5-coder:14b" value="qwen2.5-coder:14b">
+                </label>
+                <button onclick="saveSettings()">Zapisz ustawienia</button>
+                <p style="margin-top: 15px; font-size: 13px; color: #888;">
+                    Uwaga: Aby używać lokalnego API z przeglądarki, musisz uruchomić Ollama z włączoną obsługą CORS.
+                </p>
             </div>
         </div>
 
-        <div class="chat-messages" id="chatMessages">
-            <div class="welcome">
-                <h2>👋 Witaj</h2>
-                <p>Jestem gotowy do rozmowy. Zadaj pytanie lub po prostu porozmawiajmy!</p>
-            </div>
-        </div>
-        <div class="typing" id="typing">Model generuje odpowiedź...</div>
-        
         <div class="input-area">
-            <input type="text" id="messageInput" placeholder="Napisz wiadomość..." onkeypress="handleKeyPress(event)" autocomplete="off">
-            <button onclick="sendMessage()" id="sendBtn">Wyślij</button>
+            <div class="input-container">
+                <textarea 
+                    class="input-field" 
+                    id="messageInput" 
+                    placeholder="Zapytaj o cokolwiek"
+                    rows="1"
+                    onkeydown="handleKeyPress(event)"
+                ></textarea>
+                <button class="send-button" id="sendButton" onclick="sendMessage()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M7 11L12 6L17 11M12 18V7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
+        let apiUrl = 'https://tall-crabs-sleep.loca.lt';
+        let modelName = 'qwen2.5-coder:14b';
         let conversationHistory = [];
-        let messageCount = 0;
 
-        function toggleSettings() {
-            const panel = document.getElementById('settingsPanel');
-            panel.classList.toggle('show');
+        function saveSettings() {
+            apiUrl = document.getElementById('apiUrl').value;
+            modelName = document.getElementById('modelName').value;
+            document.getElementById('settingsPanel').style.display = 'none';
+            alert('Ustawienia zapisane! Możesz teraz zacząć rozmowę.');
         }
 
-        function updateStats() {
-            document.getElementById('messageCount').textContent = messageCount;
-            document.getElementById('historySize').textContent = conversationHistory.length;
-        }
-
-        function addMessage(role, content, isError = false) {
-            const messagesDiv = document.getElementById('chatMessages');
-            
-            const welcome = messagesDiv.querySelector('.welcome');
-            if (welcome) {
-                welcome.remove();
-            }
-
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${role}`;
-            
-            const contentDiv = document.createElement('div');
-            contentDiv.className = `message-content ${isError ? 'error' : ''}`;
-            contentDiv.textContent = content;
-            
-            messageDiv.appendChild(contentDiv);
-            messagesDiv.appendChild(messageDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            
-            if (!isError) {
-                messageCount++;
-                updateStats();
-            }
-        }
-
-        function showTyping(show) {
-            const typing = document.getElementById('typing');
-            typing.className = show ? 'typing show' : 'typing';
-            if (show) {
-                const messagesDiv = document.getElementById('chatMessages');
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
             }
         }
 
@@ -463,137 +251,85 @@
             
             if (!message) return;
 
-            const OLLAMA_URL = document.getElementById('ollamaUrl').value;
-            const MODEL_NAME = document.getElementById('modelName').value;
-            const MAX_TOKENS = parseInt(document.getElementById('maxTokens').value);
-            const TEMPERATURE = parseFloat(document.getElementById('temperature').value);
+            // Ukryj welcome message i panel ustawień
+            document.querySelector('.welcome-message').style.display = 'none';
+            document.getElementById('settingsPanel').style.display = 'none';
 
+            // Dodaj wiadomość użytkownika
+            addMessage(message, 'user');
             input.value = '';
-            document.getElementById('sendBtn').disabled = true;
-            
-            addMessage('user', message);
-            conversationHistory.push({
-                role: 'user',
-                content: message
-            });
+            input.style.height = 'auto';
 
-            showTyping(true);
-            const startTime = Date.now();
+            // Dodaj placeholder dla odpowiedzi
+            const assistantMessageId = 'msg-' + Date.now();
+            addMessage('<span class="loading"></span>', 'assistant', assistantMessageId);
 
             try {
-                const response = await fetch(`${OLLAMA_URL}/api/chat`, {
+                const response = await fetch(`${apiUrl}/api/generate`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        model: MODEL_NAME,
-                        messages: conversationHistory,
-                        stream: false,
-                        options: {
-                            num_predict: MAX_TOKENS,
-                            temperature: TEMPERATURE
+                        model: modelName,
+                        prompt: message,
+                        stream: true
+                    })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullResponse = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n').filter(line => line.trim());
+
+                    for (const line of lines) {
+                        try {
+                            const json = JSON.parse(line);
+                            if (json.response) {
+                                fullResponse += json.response;
+                                updateMessage(assistantMessageId, fullResponse);
+                            }
+                        } catch (e) {
+                            console.error('Error parsing JSON:', e);
                         }
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Błąd połączenia z Ollama (${response.status}). Czy Ollama działa? Uruchom: ollama serve`);
+                    }
                 }
 
-                const data = await response.json();
-                const assistantMessage = data.message.content;
-                const responseTime = ((Date.now() - startTime) / 1000).toFixed(1);
-                
-                conversationHistory.push({
-                    role: 'assistant',
-                    content: assistantMessage
-                });
-
-                showTyping(false);
-                addMessage('assistant', assistantMessage);
-                
-                document.getElementById('lastResponseTime').textContent = responseTime + 's';
-                updateConnectionStatus(true);
             } catch (error) {
-                showTyping(false);
-                let errorMsg = error.message;
-                
-                if (error.message.includes('Failed to fetch')) {
-                    errorMsg = '❌ Nie mogę połączyć się z Ollama!\n\nSprawdź czy:\n1. Ollama jest uruchomiona (ollama serve)\n2. Model jest pobrany (ollama pull qwen2.5-coder:14b)\n3. OLLAMA_ORIGINS="*" jest ustawione\n4. Ollama działa na localhost:11434';
-                }
-                
-                addMessage('assistant', errorMsg, true);
-                updateConnectionStatus(false);
                 console.error('Error:', error);
-            }
-
-            document.getElementById('sendBtn').disabled = false;
-            input.focus();
-        }
-
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
+                updateMessage(assistantMessageId, 'Błąd połączenia z API. Sprawdź czy Ollama jest uruchomiona i czy adres API jest poprawny.');
             }
         }
 
-        function updateConnectionStatus(connected) {
-            const status = document.getElementById('connectionStatus');
-            if (connected) {
-                status.className = 'connection-status connected';
-                status.textContent = '🟢 Połączono z Ollama';
-            } else {
-                status.className = 'connection-status disconnected';
-                status.textContent = '🔴 Brak połączenia';
+        function addMessage(content, role, id = null) {
+            const chatArea = document.getElementById('chatArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            if (id) messageDiv.id = id;
+            messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
+            chatArea.appendChild(messageDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function updateMessage(id, content) {
+            const messageDiv = document.getElementById(id);
+            if (messageDiv) {
+                messageDiv.querySelector('.message-content').textContent = content;
+                document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
             }
         }
 
-        async function testConnection() {
-            const resultDiv = document.getElementById('testResult');
-            resultDiv.textContent = 'Testuję połączenie...';
-            resultDiv.className = 'test-result';
-
-            const OLLAMA_URL = document.getElementById('ollamaUrl').value;
-            const MODEL_NAME = document.getElementById('modelName').value;
-
-            try {
-                const response = await fetch(`${OLLAMA_URL}/api/chat`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        model: MODEL_NAME,
-                        messages: [{ role: 'user', content: 'test' }],
-                        stream: false
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-
-                const data = await response.json();
-                resultDiv.textContent = '✓ Połączenie działa! Model odpowiada poprawnie.';
-                resultDiv.className = 'test-result success';
-                updateConnectionStatus(true);
-            } catch (error) {
-                resultDiv.textContent = `✗ Błąd: ${error.message}. Sprawdź czy Ollama działa i czy OLLAMA_ORIGINS="*" jest ustawione.`;
-                resultDiv.className = 'test-result error';
-                updateConnectionStatus(false);
-            }
-        }
-
-        window.onload = function() {
-            document.getElementById('messageInput').focus();
-            testConnection();
-            updateStats();
-            
-            document.getElementById('modelName').addEventListener('input', function() {
-                document.getElementById('modelDisplay').textContent = this.value + ' via Ollama';
-            });
-        };
+        // Auto-resize textarea
+        document.getElementById('messageInput').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+        });
     </script>
 </body>
 </html>
